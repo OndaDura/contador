@@ -18,31 +18,40 @@ angular.module('contador.services', [])
 
   return {
     getVibrationAdd: function() {
-      if(window.localStorage.getItem("config.vibrationAdd")) {
-        return window.localStorage.getItem("config.vibrationAdd") == "true";
+      if(window.localStorage.getItem("counter.vibrationAdd")) {
+        return window.localStorage.getItem("counter.vibrationAdd") == "true";
       }
       return false;
     },
     setVibrationAdd: function(vibration) {
-      window.localStorage.setItem("config.vibrationAdd", vibration);
+      window.localStorage.setItem("counter.vibrationAdd", vibration);
     },
     getVibrationSubtract: function() {
-      if(window.localStorage.getItem("config.vibrationSubtract")) {
-        return window.localStorage.getItem("config.vibrationSubtract") == "true";
+      if(window.localStorage.getItem("counter.vibrationSubtract")) {
+        return window.localStorage.getItem("counter.vibrationSubtract") == "true";
       }
       return false;
     },
     setVibrationSubtract: function(vibration) {
-      window.localStorage.setItem("config.vibrationSubtract", vibration);
+      window.localStorage.setItem("counter.vibrationSubtract", vibration);
     },
     getIntencity: function() {
-      if(window.localStorage.getItem("config.intencity")) {
-        return parseInt(window.localStorage.getItem("config.intencity"));
+      if(window.localStorage.getItem("counter.intencity")) {
+        return parseInt(window.localStorage.getItem("counter.intencity"));
       }
       return 1;
     },
     setIntencity: function(intencity) {
-      window.localStorage.setItem("config.intencity", intencity);
+      window.localStorage.setItem("counter.intencity", intencity);
+    },
+    getCounter: function() {
+      if(window.localStorage.getItem("counter.amount")) {
+        return parseInt(window.localStorage.getItem("counter.amount"));
+      }
+      return 1;
+    },
+    setCounter: function(amount) {
+      window.localStorage.setItem("counter.amount", amount);
     }
   }
 }])

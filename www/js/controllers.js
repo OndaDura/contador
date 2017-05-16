@@ -37,8 +37,9 @@ angular.module('contador.controllers', [])
   }
 })
 
-.controller('CounterCtrl', function($scope, $rootScope, $ionicPopup) {
-  var myCounter = new flipCounter('myCounter', {value: 0, inc: 1, auto: false});
+.controller('CounterCtrl', function($scope, $rootScope, $ionicPopup, BackendService) {
+  var start = BackendService.getCounter();
+  var myCounter = new flipCounter('myCounter', {value: start, inc: 1, auto: false});
 
   $scope.addCount = function(qtd) {
     myCounter.add(qtd);
@@ -46,6 +47,7 @@ angular.module('contador.controllers', [])
       navigator.vibrate($rootScope.intencity);
     }
     $scope.total = myCounter.getValue();
+    BackendService.setCounter($scope.total);
   };
 
   $scope.subtractCount = function(qtd) {
@@ -54,6 +56,7 @@ angular.module('contador.controllers', [])
       navigator.vibrate($rootScope.intencity);
     }
     $scope.total = myCounter.getValue();
+    BackendService.setCounter($scope.total);
   };
 
   $scope.resetCount = function() {
