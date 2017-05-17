@@ -72,6 +72,7 @@ angular.module('contador.controllers', [])
           onTap: function(e) {
             myCounter.setValue(0);
             $scope.total = myCounter.getValue();
+            BackendService.setCounter($scope.total);
           }
         },
       ]

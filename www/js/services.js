@@ -48,7 +48,7 @@ angular.module('contador.services', [])
       if(window.localStorage.getItem("counter.amount")) {
         return parseInt(window.localStorage.getItem("counter.amount"));
       }
-      return 1;
+      return 0;
     },
     setCounter: function(amount) {
       window.localStorage.setItem("counter.amount", amount);

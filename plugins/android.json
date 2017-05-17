@@ -7,6 +7,9 @@
         "files": {}
     },
     "installed_plugins": {
+        "cordova-plugin-console": {
+            "PACKAGE_NAME": "com.ionicframework.contador496273"
+        },
         "cordova-plugin-device": {
             "PACKAGE_NAME": "com.ionicframework.contador496273"
         },
@@ -26,9 +29,6 @@
             "PACKAGE_NAME": "com.ionicframework.contador496273"
         },
         "ionic-plugin-keyboard": {
-            "PACKAGE_NAME": "com.ionicframework.contador496273"
-        },
-        "cordova-plugin-console": {
             "PACKAGE_NAME": "com.ionicframework.contador496273"
         }
     },
