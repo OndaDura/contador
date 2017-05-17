@@ -52,6 +52,18 @@ angular.module('contador.services', [])
     },
     setCounter: function(amount) {
       window.localStorage.setItem("counter.amount", amount);
+    },
+    getInterval: function() {
+      if(window.localStorage.getItem("counter.interval")) {
+        return parseInt(window.localStorage.getItem("counter.interval"));
+      }
+      return 1;
+    },
+    setInterval: function(interval) {
+      window.localStorage.setItem("counter.interval", interval);
+    },
+    isCodeAdmin: function(code) {
+      return "Nome do líder";
     }
   }
 }])

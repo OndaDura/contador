@@ -1,4 +1,4 @@
-<ion-side-menus enable-menu-with-back-views="false" drag-content="false">
+<ion-side-menus enable-menu-with-back-views="false" drag-content="false" >
 
   <ion-side-menu-content>
     <ion-nav-bar class="bar-contador">
@@ -52,14 +52,20 @@
              </div>
            </label>
         </li>
-        <div class="list" style="margin-top: 1px;">
-          <div class="item range range-positive">
-            Intensidade
-            <input type="range" min="1" step = "100" max="2001" ng-model="intencity" ng-change="alterIntencity(intencity);">
-          </div>
+        <div class="item range range-positive" ng-if="!isIOS()">
+          Tempo de Vibração
+          <input type="range" min="10" step = "100" max="2000" ng-model="intencity" ng-change="alterIntencity(intencity);">
         </div>
+        <label class="item item-input">
+          <span class="input-label">Intervalo</span>
+          <input type="number" min="1" step="1" ng-model="interval" ng-change="alterInterval(interval);">{{interval}}
+        </label>
       </div>
     </ion-content>
+    <ion-footer-bar class="bar-positive">
+      <span class="button button-clear white-color" ng-if="name">{{name}} - <span class="button button-clear white-color">Sair</span></span>
+      <button class="button button-clear white-color" ng-click="showPopupAdmin();" menu-close ng-if="!name">Sou Líder</button>
+    </ion-footer-bar>
 
   </ion-side-menu>
 </ion-side-menus>
