@@ -11,10 +11,7 @@ angular.module('contador.controllers', [])
     $ionicSideMenuDelegate.canDragContent(true);
   });
 
-  $scope.isIOS = function() {
-    return ionic.Platform.isIOS() || ionic.Platform.isIPad();
-  }
-
+  //get default values
   $scope.vabrationAdd = BackendService.getVibrationAdd();
   $rootScope.vibrationAdd = $scope.vabrationAdd;
 
@@ -27,6 +24,27 @@ angular.module('contador.controllers', [])
   $scope.interval = BackendService.getInterval();
   $rootScope.interval = $scope.interval;
 
+  $scope.isLeader = BackendService.isLeader();
+  $rootScope.isLeader = $scope.isLeader;
+  if ($scope.isLeader) {
+    $scope.getInfoLeader();
+  }
+
+  $scope.getInfoLeader = function() {
+    $scope.id = BackendService.getLeader().id;
+    $scope.name = BackendService.getLeader().name;
+    $scope.token = BackendService.getLeader().token;
+    $scope.active = BackendService.getLeader().active;
+    $scope.dateRegister = BackendService.getLeader().dateRegister;
+
+    $rootScope.id = $scope.id;
+    $rootScope.name = $scope.name;
+    $rootScope.token = $scope.token;
+    $rootScope.active = $scope.active;
+    $rootScope.dateRegister = $scope.dateRegister;
+  }
+
+  //finish get default values
   $scope.alterVibrationAdd = function(vibration) {
     BackendService.setVibrationAdd(vibration);
     $rootScope.vibrationAdd = vibration;
@@ -48,6 +66,20 @@ angular.module('contador.controllers', [])
     $rootScope.interval = interval;
   }
 
+  $scope.removeAdmin = function() {
+    BackendService.removeAdmin();
+
+    $scope.id = undefined;
+    $scope.name = undefined;
+    $scope.token = undefined;
+    $scope.active = undefined;
+    $scope.dateRegister = undefined;
+  }
+
+  $scope.isIOS = function() {
+    return ionic.Platform.isIOS() || ionic.Platform.isIPad();
+  }
+
   $scope.showPopupAdmin = function() {
     $scope.data = {}
 
@@ -66,15 +98,17 @@ angular.module('contador.controllers', [])
               //don't allow the user to close unless he enters wifi password
               e.preventDefault();
             } else {
-              var isLider = BackendService.isCodeAdmin($scope.data.codigo);
-
-              if (isLider != "") {
-                $scope.name = isLider;
-                $scope.showAlertValidCode();
-              } else {
+              var isLeader = BackendService.isCodeAdmin($scope.data.codigo);
+              isLeader.success(function(data, status, headers, config) {
+                if (data.id > 0) {
+                  $scope.name = data.name;
+                  $scope.showAlertValidCode();
+                } else {
+                  $scope.showAlertInvalidCode();
+                }
+              }).error(function(data, status, headers, config) {
                 $scope.showAlertInvalidCode();
-              }
-
+              });
             }
           }
         },

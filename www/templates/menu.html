@@ -63,7 +63,7 @@
       </div>
     </ion-content>
     <ion-footer-bar class="bar-positive">
-      <span class="button button-clear white-color" ng-if="name">{{name}} - <span class="button button-clear white-color">Sair</span></span>
+      <span class="button button-clear white-color" ng-if="name">{{name}} - <span class="button button-clear white-color" ng-click="removeAdmin();">Sair</span></span>
       <button class="button button-clear white-color" ng-click="showPopupAdmin();" menu-close ng-if="!name">Sou Líder</button>
     </ion-footer-bar>
 

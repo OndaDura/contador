@@ -63,7 +63,45 @@ angular.module('contador.services', [])
       window.localStorage.setItem("counter.interval", interval);
     },
     isCodeAdmin: function(code) {
-      return "Nome do líder";
+      return $http({
+        url: "http://renan.pro.br/ws/admin.php",
+        method: "POST",
+        data: {"action": "token", "token": code}
+      });
+    },
+    isLeader: function() {
+      return !!window.localStorage.getItem("user.code");
+    },
+    getLeader: function() {
+      return {
+        'id': window.localStorage.getItem("user.id"),
+        'name': window.localStorage.getItem("user.name"),
+        'token': window.localStorage.getItem("user.token"),
+        'active': window.localStorage.getItem("user.active"),
+        'dateRegister': window.localStorage.getItem("user.dateRegister")
+      };
+    },
+    setLeader: function(id, name, token, active, dateRegister) {
+      window.localStorage.setItem("user.id", id);
+      window.localStorage.setItem("user.name", name);
+      window.localStorage.setItem("user.token", token);
+      window.localStorage.setItem("user.active", active);
+      window.localStorage.setItem("user.dateRegister", dateRegister);
+    },
+    removeAdmin: function() {
+      $http({
+        url: "http://renan.pro.br/ws/admin.php",
+        method: "POST",
+        data: {"action": "removeAdmin", "token": code}
+      }).success(function(data, status, headers, config) {
+        if (data.ok == true) {
+          localStorage.removeItem("user.id");
+          localStorage.removeItem("user.name");
+          localStorage.removeItem("user.token");
+          localStorage.removeItem("user.active");
+          localStorage.removeItem("user.dateRegister");
+        }
+      });
     }
   }
 }])
