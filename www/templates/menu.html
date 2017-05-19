@@ -17,12 +17,15 @@
 
   <ion-side-menu side="left">
     <ion-header-bar class="bar-contador-reverse bar-contador-borderbottom">
+      <button menu-close class="button button-full button-positive sem-margem font-20" ng-click="newCounter();">
+        Novo Contador
+      </button>
     </ion-header-bar>
 
     <ion-content>
       <ion-list>
-        <ion-item menu-close href="#/app/counter">
-          Contador
+        <ion-item menu-close ng-repeat="count in counters">
+          {{count.date}} - {{count.type}} - {{count.token}}
         </ion-item>
       </ion-list>
     </ion-content>

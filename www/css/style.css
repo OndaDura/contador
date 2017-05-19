@@ -28,6 +28,14 @@
   border-color: #888888 !important;
 }
 
+.sem-margem {
+  margin: 0px !important;
+}
+
+.font-20 {
+  font-size: 20px !important;
+}
+
 .botao-criar-post {
   font-size: 35px;
   color: #ffc900 !important;

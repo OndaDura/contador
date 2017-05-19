@@ -70,7 +70,7 @@ angular.module('contador.services', [])
       });
     },
     isLeader: function() {
-      return !!window.localStorage.getItem("user.code");
+      return !!window.localStorage.getItem("user.token");
     },
     getLeader: function() {
       return {
@@ -92,7 +92,7 @@ angular.module('contador.services', [])
       $http({
         url: "http://renan.pro.br/ws/admin.php",
         method: "POST",
-        data: {"action": "removeAdmin", "token": code}
+        data: {"action": "removeAdmin", "token": window.localStorage.getItem("user.token")}
       }).success(function(data, status, headers, config) {
         if (data.ok == true) {
           localStorage.removeItem("user.id");
@@ -102,6 +102,21 @@ angular.module('contador.services', [])
           localStorage.removeItem("user.dateRegister");
         }
       });
+    },
+    newCounter: function(date, type) {
+      return $http({
+        url: "http://renan.pro.br/ws/admin.php",
+        method: "POST",
+        data: {"action": "newCounter", "date": date.toISOString().substring(0, 10).split('-').reverse().join('/'), "type": type}
+      });
+    },
+    newCounterFinish: function(date, type, token) {
+      var counters = JSON.parse(localStorage.getItem('counters')) || [];
+      counters.push({'date': date.toISOString().substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'token': token});
+      window.localStorage.setItem("counters", JSON.stringify(counters));
+    },
+    getCounters: function() {
+      return JSON.parse(localStorage.getItem('counters')) || [];
     }
   }
 }])

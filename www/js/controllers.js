@@ -26,9 +26,11 @@ angular.module('contador.controllers', [])
 
   $scope.isLeader = BackendService.isLeader();
   $rootScope.isLeader = $scope.isLeader;
-  if ($scope.isLeader) {
-    $scope.getInfoLeader();
-  }
+
+  $scope.getCounters = function() {
+    $scope.counters = BackendService.getCounters();
+  };
+  $scope.getCounters();
 
   $scope.getInfoLeader = function() {
     $scope.id = BackendService.getLeader().id;
@@ -42,46 +44,64 @@ angular.module('contador.controllers', [])
     $rootScope.token = $scope.token;
     $rootScope.active = $scope.active;
     $rootScope.dateRegister = $scope.dateRegister;
+  };
+
+  if ($scope.isLeader) {
+    $scope.getInfoLeader();
   }
 
   //finish get default values
   $scope.alterVibrationAdd = function(vibration) {
     BackendService.setVibrationAdd(vibration);
     $rootScope.vibrationAdd = vibration;
-  }
+  };
 
   $scope.alterVibrationSubtract = function(vibration) {
     BackendService.setVibrationSubtract(vibration);
     $rootScope.vibrationSubtract = vibration;
-  }
+  };
 
   $scope.alterIntencity = function(intencity) {
     BackendService.setIntencity(intencity);
     $rootScope.intencity = parseInt(intencity);
     navigator.vibrate(parseInt(intencity));
-  }
+  };
 
   $scope.alterInterval = function(interval) {
     BackendService.setInterval(interval);
     $rootScope.interval = interval;
-  }
+  };
 
   $scope.removeAdmin = function() {
-    BackendService.removeAdmin();
+    var myPopup = $ionicPopup.show({
+      template: 'Caso você opte por sair, sua conta será sincronizada e você não será mais adminsitrador, deseja proceguir?',
+      title: 'Atenção!',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancelar' },
+        {
+          text: '<b>Aceito</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            BackendService.removeAdmin();
 
-    $scope.id = undefined;
-    $scope.name = undefined;
-    $scope.token = undefined;
-    $scope.active = undefined;
-    $scope.dateRegister = undefined;
-  }
+            $scope.id = undefined;
+            $scope.name = undefined;
+            $scope.token = undefined;
+            $scope.active = undefined;
+            $scope.dateRegister = undefined;
+          }
+        }
+      ]
+    });
+  };
 
   $scope.isIOS = function() {
     return ionic.Platform.isIOS() || ionic.Platform.isIPad();
-  }
+  };
 
   $scope.showPopupAdmin = function() {
-    $scope.data = {}
+    $scope.data = {};
 
     // An elaborate, custom popup
     var myPopup = $ionicPopup.show({
@@ -103,6 +123,7 @@ angular.module('contador.controllers', [])
                 if (data.id > 0) {
                   $scope.name = data.name;
                   $scope.showAlertValidCode();
+                  BackendService.setLeader(data.id, data.name, data.token, data.active, data.dateRegister);
                 } else {
                   $scope.showAlertInvalidCode();
                 }
@@ -111,7 +132,7 @@ angular.module('contador.controllers', [])
               });
             }
           }
-        },
+        }
       ]
     });
   };
@@ -121,20 +142,52 @@ angular.module('contador.controllers', [])
       title: 'Erro ao cadastrar',
       template: 'O código informado é inválido'
     });
-  }
+  };
 
   $scope.showAlertValidCode = function() {
     var alertPopup = $ionicPopup.alert({
       title: 'Sucesso!',
       template: 'Agora você é um líder'
     });
-  }
+  };
+
+  $scope.newCounter = function () {
+    $scope.data = {};
+
+    // An elaborate, custom popup
+    var myPopup = $ionicPopup.show({
+      template: '<label class="item item-input"> <input type="date" ng-model="data.date" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'Total\'"><option value="Total" selected>Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option></select></label></div>',
+      title: 'Novo Contador',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancelar' },
+        {
+          text: '<b>Criar</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            var nc = BackendService.newCounter($scope.data.date, $scope.data.type);
+            nc.success(function(data, status, headers, config) {
+              BackendService.setLeader(scope.data.date, $scope.data.type, data.token);
+              $scope.getCounters();
+              $scope.$broadcast('newCounter');
+            }).error(function(data, status, headers, config) {
+              $scope.showAlertInvalidCode();
+            });
+          }
+        }
+      ]
+    });
+  };
 })
 
 .controller('CounterCtrl', function($scope, $rootScope, $ionicPopup, BackendService) {
   var start = BackendService.getCounter();
   var interval = $rootScope.interval;
   var myCounter = new flipCounter('myCounter', {value: start, inc: interval, auto: false});
+
+  $scope.$on('newCounter', function(event) {
+    myCounter = new flipCounter('myCounter', {value: 0, inc: interval, auto: false});
+  });
 
   $scope.addCount = function() {
     myCounter.add($rootScope.interval);
@@ -169,7 +222,7 @@ angular.module('contador.controllers', [])
             $scope.total = myCounter.getValue();
             BackendService.setCounter($scope.total);
           }
-        },
+        }
       ]
     });
   };
