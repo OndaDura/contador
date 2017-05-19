@@ -3,7 +3,7 @@
   <ion-side-menu-content>
     <ion-nav-bar class="bar-contador">
       <ion-nav-buttons side="left" >
-        <button class="white-color button button-icon button-clear ion-navicon" menu-toggle="left">
+        <button class="white-color button button-icon button-clear ion-navicon" menu-toggle="left" id="button-left">
         </button>
       </ion-nav-buttons>
       <ion-nav-buttons side="right">
@@ -24,8 +24,8 @@
 
     <ion-content>
       <ion-list>
-        <ion-item menu-close ng-repeat="count in counters">
-          {{count.date}} - {{count.type}} - {{count.token}}
+        <ion-item ng-repeat="count in counters | orderBy:'+id'" ng-click="showActionCounter(count.id);">
+          {{count.token}} -{{count.id}} Contador:{{count.value}} - Total:{{count.total}}<br />{{count.date}} - {{count.type}}
         </ion-item>
       </ion-list>
     </ion-content>

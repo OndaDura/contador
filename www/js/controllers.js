@@ -2,7 +2,7 @@
 angular.module('contador.controllers', [])
 
 //top view controller
-.controller('AppCtrl', function($scope, $rootScope, BackendService, $timeout, $ionicSideMenuDelegate, $ionicPopup) {
+.controller('AppCtrl', function($scope, $rootScope, BackendService, $timeout, $ionicSideMenuDelegate, $ionicPopup, $ionicActionSheet) {
   //Disable swipe in menu left and right
   $scope.$on('$ionicView.enter', function() {
     $ionicSideMenuDelegate.canDragContent(false);
@@ -74,7 +74,7 @@ angular.module('contador.controllers', [])
 
   $scope.removeAdmin = function() {
     var myPopup = $ionicPopup.show({
-      template: 'Caso você opte por sair, sua conta será sincronizada e você não será mais adminsitrador, deseja proceguir?',
+      template: 'Caso você opte por sair, sua conta será sincronizada e você não será mais adminsitrador, deseja prosseguir?',
       title: 'Atenção!',
       scope: $scope,
       buttons: [
@@ -167,7 +167,8 @@ angular.module('contador.controllers', [])
           onTap: function(e) {
             var nc = BackendService.newCounter($scope.data.date, $scope.data.type);
             nc.success(function(data, status, headers, config) {
-              BackendService.setLeader(scope.data.date, $scope.data.type, data.token);
+              BackendService.newCounterFinish($scope.data.date, $scope.data.type, data.token, data.id);
+              BackendService.setCounterId(data.id);
               $scope.getCounters();
               $scope.$broadcast('newCounter');
             }).error(function(data, status, headers, config) {
@@ -178,6 +179,55 @@ angular.module('contador.controllers', [])
       ]
     });
   };
+
+  $scope.showActionCounter = function(id) {
+    var hideSheet = $ionicActionSheet.show({
+      buttons: [
+        { text: '<b>Abrir</b>' },
+        { text: 'Sincronizar' }
+      ],
+      destructiveText: 'Finalizar',
+      cancelText: 'Cancelar',
+      destructiveButtonClicked: function() {
+        var myPopup = $ionicPopup.show({
+          template: 'Caso você opte por Finalizar, não será mais possível adicionar contagens a esse contador, você deseja prosseguir?',
+          title: 'Atenção!',
+          scope: $scope,
+          buttons: [
+            { text: 'Cancelar' },
+            {
+              text: '<b>Sim</b>',
+              type: 'button-positive',
+              onTap: function(e) {
+                BackendService.removeCounter(id);
+                $scope.getCounters();
+              }
+            }
+          ]
+        });
+        return true;
+      },
+      buttonClicked: function(index) {
+        if (index == 0) {
+          /*$scope.syncCounter(BackendService.getCounterId());
+          BackendService.setCounterId(id);*/
+          $scope.$broadcast('newCounter', BackendService.getCounterIdArray(id).value);
+          $ionicSideMenuDelegate.toggleLeft(false);
+        } else if (index == 1) {
+          $scope.syncCounter(id);
+        }
+        return true;
+      }
+    });
+  };
+
+  $scope.syncCounter = function(id) {
+    var total = BackendService.syncCounter(id);
+    total.success(function(data, status, headers, config) {
+      BackendService.syncCounterFinish(id, data.total);
+      $scope.getCounters();
+    });
+  }
 })
 
 .controller('CounterCtrl', function($scope, $rootScope, $ionicPopup, BackendService) {
@@ -185,8 +235,8 @@ angular.module('contador.controllers', [])
   var interval = $rootScope.interval;
   var myCounter = new flipCounter('myCounter', {value: start, inc: interval, auto: false});
 
-  $scope.$on('newCounter', function(event) {
-    myCounter = new flipCounter('myCounter', {value: 0, inc: interval, auto: false});
+  $scope.$on('newCounter', function(event, amount) {
+    myCounter = new flipCounter('myCounter', {value: amount || 0, inc: interval, auto: false});
   });
 
   $scope.addCount = function() {

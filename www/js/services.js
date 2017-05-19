@@ -53,6 +53,15 @@ angular.module('contador.services', [])
     setCounter: function(amount) {
       window.localStorage.setItem("counter.amount", amount);
     },
+    getCounterId: function() {
+      if(window.localStorage.getItem("counter.id")) {
+        return parseInt(window.localStorage.getItem("counter.id"));
+      }
+      return 0;
+    },
+    setCounterId: function(id) {
+      window.localStorage.setItem("counter.id", id);
+    },
     getInterval: function() {
       if(window.localStorage.getItem("counter.interval")) {
         return parseInt(window.localStorage.getItem("counter.interval"));
@@ -107,16 +116,57 @@ angular.module('contador.services', [])
       return $http({
         url: "http://renan.pro.br/ws/admin.php",
         method: "POST",
-        data: {"action": "newCounter", "date": date.toISOString().substring(0, 10).split('-').reverse().join('/'), "type": type}
+        data: {"action": "newCounter", "date": date.toISOString().substring(0, 10).split('-').reverse().join('/'), "type": type, "id": window.localStorage.getItem("user.id")}
       });
     },
-    newCounterFinish: function(date, type, token) {
+    newCounterFinish: function(date, type, token, id) {
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
-      counters.push({'date': date.toISOString().substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'token': token});
+      counters.push({'date': date.toISOString().substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'token': token, 'id': id});
       window.localStorage.setItem("counters", JSON.stringify(counters));
     },
     getCounters: function() {
       return JSON.parse(localStorage.getItem('counters')) || [];
+    },
+    removeCounter: function(id) {
+      var counters = JSON.parse(localStorage.getItem('counters')) || [];
+      for (var i = 0; i < counters.length; i++) {
+        if(counters[i].id == id) {
+          counters.splice(i, 1);
+          window.localStorage.setItem("counters", JSON.stringify(counters));
+          return $http({
+            url: "http://renan.pro.br/ws/admin.php",
+            method: "POST",
+            data: {"action": "disableCounter", "id": id}
+          });
+        }
+      }
+    },
+    syncCounter: function(id) {
+      return $http({
+        url: "http://renan.pro.br/ws/admin.php",
+        method: "POST",
+        data: {"action": "syncCounter", "id": id, "amount": parseInt(window.localStorage.getItem("counter.amount"))}
+      });
+    },
+    syncCounterFinish: function(id, total) {
+      var counters = JSON.parse(localStorage.getItem('counters')) || [];
+      for (var i = 0; i < counters.length; i++) {
+        if(counters[i].id == id) {
+          counters[i].value = parseInt(window.localStorage.getItem("counter.amount"));
+          counters[i].total = total;
+        }
+      }
+      window.localStorage.setItem("counters", JSON.stringify(counters));
+    },
+    getCounterIdArray: function(id) {
+      var counter = "";
+      var counters = JSON.parse(localStorage.getItem('counters')) || [];
+      for (var i = 0; i < counters.length; i++) {
+        if(counters[i].id == id) {
+          counter = counters[i];
+        }
+      }
+      return counter;
     }
   }
 }])
