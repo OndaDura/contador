@@ -153,11 +153,10 @@ angular.module('contador.controllers', [])
 
   $scope.newCounter = function () {
     $scope.data = {};
-
     // An elaborate, custom popup
     var newCounterPop = $ionicPopup.show({
-      template: '<label class="item item-input"> <input type="text" placeholder="Digite o código aqui" ng-model="data.token" maxlength="6" style="text-transform:uppercase"></label>',
-      title: 'Código do contador',
+      template: '<label class="item item-input"> <input type="date" ng-model="data.date" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'Total\'"><option value="Total" selected>Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option></select></label></div>',
+      title: 'Novo Contador',
       scope: $scope,
       buttons: [
         { text: 'Cancelar' },
@@ -165,8 +164,8 @@ angular.module('contador.controllers', [])
           text: '<b>Criar</b>',
           type: 'button-positive',
           onTap: function(e) {
-            var oc = BackendService.openCounter($scope.data.token);
-            oc.success(function(data, status, headers, config) {
+            var nc = BackendService.newCounter($scope.data.date, $scope.data.type);
+            nc.success(function(data, status, headers, config) {
               $scope.saveOldCounter();
               BackendService.newCounterFinish($scope.data.date, $scope.data.type, data.token, data.id);
               BackendService.setIdCounter(data.id);
@@ -184,11 +183,10 @@ angular.module('contador.controllers', [])
 
   $scope.openCounter = function () {
     $scope.data = {};
-
     // An elaborate, custom popup
-    var newCounterPop = $ionicPopup.show({
-      template: '<label class="item item-input"> <input type="date" ng-model="data.date" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'Total\'"><option value="Total" selected>Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option></select></label></div>',
-      title: 'Novo Contador',
+    var openCounterPop = $ionicPopup.show({
+      template: '<label class="item item-input"> <input type="text" placeholder="Digite o código aqui" ng-model="data.token" maxlength="6" style="text-transform:uppercase"></label>',
+      title: 'Código do contador',
       scope: $scope,
       buttons: [
         { text: 'Cancelar' },
@@ -196,8 +194,8 @@ angular.module('contador.controllers', [])
           text: '<b>Criar</b>',
           type: 'button-positive',
           onTap: function(e) {
-            var nc = BackendService.newCounter($scope.data.date, $scope.data.type);
-            nc.success(function(data, status, headers, config) {
+            var oc = BackendService.openCounter($scope.data.token);
+            oc.success(function(data, status, headers, config) {
               $scope.saveOldCounter();
               BackendService.newCounterFinish($scope.data.date, $scope.data.type, data.token, data.id);
               BackendService.setIdCounter(data.id);
