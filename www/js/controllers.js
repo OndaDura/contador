@@ -155,7 +155,38 @@ angular.module('contador.controllers', [])
     $scope.data = {};
 
     // An elaborate, custom popup
-    var myPopup = $ionicPopup.show({
+    var newCounterPop = $ionicPopup.show({
+      template: '<label class="item item-input"> <input type="text" placeholder="Digite o código aqui" ng-model="data.token" maxlength="6" style="text-transform:uppercase"></label>',
+      title: 'Código do contador',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancelar' },
+        {
+          text: '<b>Criar</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            var oc = BackendService.openCounter($scope.data.token);
+            oc.success(function(data, status, headers, config) {
+              $scope.saveOldCounter();
+              BackendService.newCounterFinish($scope.data.date, $scope.data.type, data.token, data.id);
+              BackendService.setIdCounter(data.id);
+              BackendService.setValueCounter(0);
+              $scope.getCounters();
+              $scope.$broadcast('newCounter', 0);
+            }).error(function(data, status, headers, config) {
+              $scope.showAlertInvalidCode();
+            });
+          }
+        }
+      ]
+    });
+  };
+
+  $scope.openCounter = function () {
+    $scope.data = {};
+
+    // An elaborate, custom popup
+    var newCounterPop = $ionicPopup.show({
       template: '<label class="item item-input"> <input type="date" ng-model="data.date" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'Total\'"><option value="Total" selected>Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option></select></label></div>',
       title: 'Novo Contador',
       scope: $scope,
@@ -167,10 +198,12 @@ angular.module('contador.controllers', [])
           onTap: function(e) {
             var nc = BackendService.newCounter($scope.data.date, $scope.data.type);
             nc.success(function(data, status, headers, config) {
+              $scope.saveOldCounter();
               BackendService.newCounterFinish($scope.data.date, $scope.data.type, data.token, data.id);
-              BackendService.setCounterId(data.id);
+              BackendService.setIdCounter(data.id);
+              BackendService.setValueCounter(0);
               $scope.getCounters();
-              $scope.$broadcast('newCounter');
+              $scope.$broadcast('newCounter', 0);
             }).error(function(data, status, headers, config) {
               $scope.showAlertInvalidCode();
             });
@@ -184,13 +217,14 @@ angular.module('contador.controllers', [])
     var hideSheet = $ionicActionSheet.show({
       buttons: [
         { text: '<b>Abrir</b>' },
-        { text: 'Sincronizar' }
+        { text: 'Sincronizar' },
+        { text: 'Finalizar' }
       ],
-      destructiveText: 'Finalizar',
+      destructiveText: 'Excluir',
       cancelText: 'Cancelar',
       destructiveButtonClicked: function() {
         var myPopup = $ionicPopup.show({
-          template: 'Caso você opte por Finalizar, não será mais possível adicionar contagens a esse contador, você deseja prosseguir?',
+          template: 'Caso você opte por Excluir, não será mais possível recuperar os dados do contador, você deseja prosseguir?',
           title: 'Atenção!',
           scope: $scope,
           buttons: [
@@ -199,7 +233,10 @@ angular.module('contador.controllers', [])
               text: '<b>Sim</b>',
               type: 'button-positive',
               onTap: function(e) {
-                BackendService.removeCounter(id);
+                BackendService.removeCounter(id, 0);
+                var counter = BackendService.getFirstCounter();
+                BackendService.setIdCounter(counter.id || 0);
+                BackendService.setValueCounter(counter.value || 0);
                 $scope.getCounters();
               }
             }
@@ -209,37 +246,64 @@ angular.module('contador.controllers', [])
       },
       buttonClicked: function(index) {
         if (index === 0) {
-          BackendService.setAmoutCounterId(BackendService.getCounterId(), BackendService.getCounter());
-          $scope.syncCounter(BackendService.getCounterId(), 0);
-          BackendService.setCounterId(id);
-          var valueNewCounter = BackendService.getCounterIdArray(id).value;
-          BackendService.setCounter(valueNewCounter);
-          $scope.$broadcast('newCounter', valueNewCounter);
+          $scope.saveOldCounter();
+          var newCounter = BackendService.getCounterId(id);
+          BackendService.setIdCounter(id);
+          BackendService.setValueCounter(newCounter.value);
+          $scope.$broadcast('newCounter', newCounter.value);
           $ionicSideMenuDelegate.toggleLeft(false);
         } else if (index === 1) {
-          $scope.syncCounter(id, 1);
+          $scope.syncCounter(id);
+        } else if (index === 2) {
+          var myPopup = $ionicPopup.show({
+            template: 'Caso você opte por Finalizar, não será mais possível adicionar contagens a esse contador, você deseja prosseguir?',
+            title: 'Atenção!',
+            scope: $scope,
+            buttons: [
+              { text: 'Cancelar' },
+              {
+                text: '<b>Sim</b>',
+                type: 'button-positive',
+                onTap: function(e) {
+                  BackendService.removeCounter(id, 2);
+                  var counter = BackendService.getFirstCounter();
+                  BackendService.setIdCounter(counter.id || 0);
+                  BackendService.setValueCounter(counter.value || 0);
+                  $scope.getCounters();
+                }
+              }
+            ]
+          });
         }
         return true;
       }
     });
   };
 
-  $scope.syncCounter = function(id, type) {
-    var total = BackendService.syncCounter(id, type);
+  $scope.syncCounter = function(id) {
+    $scope.saveOldCounter();
+    var total = BackendService.syncCounter(id);
     total.success(function(data, status, headers, config) {
-      BackendService.syncCounterFinish(id, data.total, type);
+      BackendService.syncCounterFinish(id, data.total);
       $scope.getCounters();
     });
+  };
+
+  $scope.saveOldCounter = function() {
+    var oldId = BackendService.getIdCounter();
+    var oldValue = BackendService.getValueCounter();
+    BackendService.setAmoutCounterId(oldId, oldValue);
+    $scope.getCounters();
   }
 })
 
 .controller('CounterCtrl', function($scope, $rootScope, $ionicPopup, BackendService) {
-  var start = BackendService.getCounter();
+  var start = BackendService.getValueCounter();
   var interval = $rootScope.interval;
   var myCounter = new flipCounter('myCounter', {value: start, inc: interval, auto: false});
 
   $scope.$on('newCounter', function(event, amount) {
-    myCounter = new flipCounter('myCounter', {value: amount || 0, inc: interval, auto: false});
+    myCounter = new flipCounter('myCounter', {value: amount, inc: interval, auto: false});
   });
 
   $scope.addCount = function() {
@@ -248,7 +312,7 @@ angular.module('contador.controllers', [])
       navigator.vibrate($rootScope.intencity);
     }
     $scope.total = myCounter.getValue();
-    BackendService.setCounter($scope.total);
+    BackendService.setValueCounter($scope.total);
   };
 
   $scope.subtractCount = function() {
@@ -257,7 +321,7 @@ angular.module('contador.controllers', [])
       navigator.vibrate($rootScope.intencity);
     }
     $scope.total = myCounter.getValue();
-    BackendService.setCounter($scope.total);
+    BackendService.setValueCounter($scope.total);
   };
 
   $scope.resetCount = function() {
@@ -273,7 +337,7 @@ angular.module('contador.controllers', [])
           onTap: function(e) {
             myCounter.setValue(0);
             $scope.total = myCounter.getValue();
-            BackendService.setCounter($scope.total);
+            BackendService.setValueCounter($scope.total);
           }
         }
       ]

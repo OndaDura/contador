@@ -44,22 +44,22 @@ angular.module('contador.services', [])
     setIntencity: function(intencity) {
       window.localStorage.setItem("counter.intencity", intencity);
     },
-    getCounter: function() {
+    getValueCounter: function() {
       if(window.localStorage.getItem("counter.amount")) {
         return parseInt(window.localStorage.getItem("counter.amount"));
       }
       return 0;
     },
-    setCounter: function(amount) {
+    setValueCounter: function(amount) {
       window.localStorage.setItem("counter.amount", amount);
     },
-    getCounterId: function() {
+    getIdCounter: function() {
       if(window.localStorage.getItem("counter.id")) {
         return parseInt(window.localStorage.getItem("counter.id"));
       }
       return 0;
     },
-    setCounterId: function(id) {
+    setIdCounter: function(id) {
       window.localStorage.setItem("counter.id", id);
     },
     getInterval: function() {
@@ -124,10 +124,22 @@ angular.module('contador.services', [])
       counters.push({'date': date.toISOString().substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'token': token, 'id': id});
       window.localStorage.setItem("counters", JSON.stringify(counters));
     },
+    openCounter: function(token) {
+      return $http({
+        url: "http://renan.pro.br/ws/admin.php",
+        method: "POST",
+        data: {"action": "openCounter", "token": token}
+      });
+    },
+    openCounterFinish: function(date, type, token, id) {
+      var counters = JSON.parse(localStorage.getItem('counters')) || [];
+      counters.push({'date': date.toISOString().substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'token': token, 'id': id});
+      window.localStorage.setItem("counters", JSON.stringify(counters));
+    },
     getCounters: function() {
       return JSON.parse(localStorage.getItem('counters')) || [];
     },
-    removeCounter: function(id) {
+    removeCounter: function(id, type) {
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
       for (var i = 0; i < counters.length; i++) {
         if(counters[i].id == id) {
@@ -136,21 +148,17 @@ angular.module('contador.services', [])
           return $http({
             url: "http://renan.pro.br/ws/admin.php",
             method: "POST",
-            data: {"action": "disableCounter", "id": id}
+            data: {"action": "disableCounter", "id": id, "type": type}
           });
         }
       }
     },
-    syncCounter: function(id, type) {
+    syncCounter: function(id) {
       var amount = 0;
-      if (type == 1) {
-        amount = parseInt(window.localStorage.getItem("counter.amount"));
-      } else if (type == 0) {
-        var counters = JSON.parse(localStorage.getItem('counters')) || [];
-        for (var i = 0; i < counters.length; i++) {
-          if(counters[i].id == id) {
-            amount = counters[i].value;
-          }
+      var counters = JSON.parse(localStorage.getItem('counters')) || [];
+      for (var i = 0; i < counters.length; i++) {
+        if(counters[i].id == id) {
+          amount = counters[i].value;
         }
       }
       return $http({
@@ -159,21 +167,16 @@ angular.module('contador.services', [])
         data: {"action": "syncCounter", "id": id, "amount": amount}
       });
     },
-    syncCounterFinish: function(id, total, type) {
+    syncCounterFinish: function(id, total) {
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
       for (var i = 0; i < counters.length; i++) {
         if(counters[i].id == id) {
-          if (type === 1) {
-            counters[i].value = parseInt(window.localStorage.getItem("counter.amount"));
-            counters[i].total = total;
-          } else {
-            counters[i].value = total;
-          }
+          counters[i].total = total;
         }
       }
       window.localStorage.setItem("counters", JSON.stringify(counters));
     },
-    getCounterIdArray: function(id) {
+    getCounterId: function(id) {
       var counter = "";
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
       for (var i = 0; i < counters.length; i++) {
@@ -182,6 +185,14 @@ angular.module('contador.services', [])
         }
       }
       return counter;
+    },
+    getFirstCounter: function() {
+      var counters = JSON.parse(localStorage.getItem('counters')) || [];
+      if (counters.length) {
+        return counters[counters.length - 1];
+      } else {
+        return false;
+      }
     },
     setAmoutCounterId: function(id, amount) {
       var counter = "";
