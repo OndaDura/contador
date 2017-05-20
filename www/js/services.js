@@ -141,19 +141,34 @@ angular.module('contador.services', [])
         }
       }
     },
-    syncCounter: function(id) {
+    syncCounter: function(id, type) {
+      var amount = 0;
+      if (type == 1) {
+        amount = parseInt(window.localStorage.getItem("counter.amount"));
+      } else if (type == 0) {
+        var counters = JSON.parse(localStorage.getItem('counters')) || [];
+        for (var i = 0; i < counters.length; i++) {
+          if(counters[i].id == id) {
+            amount = counters[i].value;
+          }
+        }
+      }
       return $http({
         url: "http://renan.pro.br/ws/admin.php",
         method: "POST",
-        data: {"action": "syncCounter", "id": id, "amount": parseInt(window.localStorage.getItem("counter.amount"))}
+        data: {"action": "syncCounter", "id": id, "amount": amount}
       });
     },
-    syncCounterFinish: function(id, total) {
+    syncCounterFinish: function(id, total, type) {
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
       for (var i = 0; i < counters.length; i++) {
         if(counters[i].id == id) {
-          counters[i].value = parseInt(window.localStorage.getItem("counter.amount"));
-          counters[i].total = total;
+          if (type === 1) {
+            counters[i].value = parseInt(window.localStorage.getItem("counter.amount"));
+            counters[i].total = total;
+          } else {
+            counters[i].value = total;
+          }
         }
       }
       window.localStorage.setItem("counters", JSON.stringify(counters));
@@ -167,6 +182,16 @@ angular.module('contador.services', [])
         }
       }
       return counter;
+    },
+    setAmoutCounterId: function(id, amount) {
+      var counter = "";
+      var counters = JSON.parse(localStorage.getItem('counters')) || [];
+      for (var i = 0; i < counters.length; i++) {
+        if(counters[i].id == id) {
+          counters[i].value = amount;
+        }
+      }
+      window.localStorage.setItem("counters", JSON.stringify(counters));
     }
   }
 }])

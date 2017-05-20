@@ -208,23 +208,26 @@ angular.module('contador.controllers', [])
         return true;
       },
       buttonClicked: function(index) {
-        if (index == 0) {
-          /*$scope.syncCounter(BackendService.getCounterId());
-          BackendService.setCounterId(id);*/
-          $scope.$broadcast('newCounter', BackendService.getCounterIdArray(id).value);
+        if (index === 0) {
+          BackendService.setAmoutCounterId(BackendService.getCounterId(), BackendService.getCounter());
+          $scope.syncCounter(BackendService.getCounterId(), 0);
+          BackendService.setCounterId(id);
+          var valueNewCounter = BackendService.getCounterIdArray(id).value;
+          BackendService.setCounter(valueNewCounter);
+          $scope.$broadcast('newCounter', valueNewCounter);
           $ionicSideMenuDelegate.toggleLeft(false);
-        } else if (index == 1) {
-          $scope.syncCounter(id);
+        } else if (index === 1) {
+          $scope.syncCounter(id, 1);
         }
         return true;
       }
     });
   };
 
-  $scope.syncCounter = function(id) {
-    var total = BackendService.syncCounter(id);
+  $scope.syncCounter = function(id, type) {
+    var total = BackendService.syncCounter(id, type);
     total.success(function(data, status, headers, config) {
-      BackendService.syncCounterFinish(id, data.total);
+      BackendService.syncCounterFinish(id, data.total, type);
       $scope.getCounters();
     });
   }

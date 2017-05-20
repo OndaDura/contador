@@ -24,7 +24,7 @@
 
     <ion-content>
       <ion-list>
-        <ion-item ng-repeat="count in counters | orderBy:'+id'" ng-click="showActionCounter(count.id);">
+        <ion-item ng-repeat="count in counters | orderBy:'-id'" ng-click="showActionCounter(count.id);">
           {{count.token}} -{{count.id}} Contador:{{count.value}} - Total:{{count.total}}<br />{{count.date}} - {{count.type}}
         </ion-item>
       </ion-list>
