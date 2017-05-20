@@ -36,6 +36,16 @@
   font-size: 20px !important;
 }
 
+.width-48 {
+  width: 48% !important;
+}
+
+.menu-android {
+  background-color: #ffc900;
+  border-color: black;
+  text-align: center;
+}
+
 .botao-criar-post {
   font-size: 35px;
   color: #ffc900 !important;

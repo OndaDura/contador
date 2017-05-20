@@ -191,13 +191,13 @@ angular.module('contador.controllers', [])
       buttons: [
         { text: 'Cancelar' },
         {
-          text: '<b>Criar</b>',
+          text: '<b>Abrir</b>',
           type: 'button-positive',
           onTap: function(e) {
             var oc = BackendService.openCounter($scope.data.token);
             oc.success(function(data, status, headers, config) {
               $scope.saveOldCounter();
-              BackendService.newCounterFinish($scope.data.date, $scope.data.type, data.token, data.id);
+              BackendService.newCounterFinish(data.dateEvent, data.type, data.token, data.id);
               BackendService.setIdCounter(data.id);
               BackendService.setValueCounter(0);
               $scope.getCounters();

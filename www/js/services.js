@@ -121,7 +121,10 @@ angular.module('contador.services', [])
     },
     newCounterFinish: function(date, type, token, id) {
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
-      counters.push({'date': date.toISOString().substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'token': token, 'id': id});
+      if (typeof date != "string") {
+        date = date.toISOString();
+      }
+      counters.push({'date': date.substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'token': token, 'id': id});
       window.localStorage.setItem("counters", JSON.stringify(counters));
     },
     openCounter: function(token) {
