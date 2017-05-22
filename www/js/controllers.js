@@ -172,7 +172,7 @@ angular.module('contador.controllers', [])
               BackendService.setValueCounter(0);
               $scope.getCounters();
               $scope.$broadcast('newCounter', 0);
-              $scope.$broadcast('nameCounter', data.dateEvent + ' - ' + data.type);
+              $scope.$broadcast('nameCounter', data.dateEvent.substring(0, 10).split('-').reverse().join('/') + ' - ' + data.type);
             }).error(function(data, status, headers, config) {
               $scope.showAlertInvalidCode();
             });
@@ -195,18 +195,22 @@ angular.module('contador.controllers', [])
           text: '<b>Abrir</b>',
           type: 'button-positive',
           onTap: function(e) {
-            var oc = BackendService.openCounter($scope.data.token);
-            oc.success(function(data, status, headers, config) {
-              $scope.saveOldCounter();
-              BackendService.newCounterFinish(data.dateEvent, data.type, data.token, data.id);
-              BackendService.setIdCounter(data.id);
-              BackendService.setValueCounter(0);
-              $scope.getCounters();
-              $scope.$broadcast('newCounter', 0);
-              $scope.$broadcast('nameCounter', data.dateEvent + ' - ' + data.type);
-            }).error(function(data, status, headers, config) {
+            if (!BackendService.getCounterToken($scope.data.token.toUpperCase())) {
+              var oc = BackendService.openCounter($scope.data.token);
+              oc.success(function(data, status, headers, config) {
+                $scope.saveOldCounter();
+                BackendService.newCounterFinish(data.dateEvent, data.type, data.token, data.id);
+                BackendService.setIdCounter(data.id);
+                BackendService.setValueCounter(0);
+                $scope.getCounters();
+                $scope.$broadcast('newCounter', 0);
+                $scope.$broadcast('nameCounter', data.dateEvent.substring(0, 10).split('-').reverse().join('/') + ' - ' + data.type);
+              }).error(function(data, status, headers, config) {
+                $scope.showAlertInvalidCode();
+              });
+            } else {
               $scope.showAlertInvalidCode();
-            });
+            }
           }
         }
       ]
@@ -303,7 +307,12 @@ angular.module('contador.controllers', [])
   var interval = $rootScope.interval;
   var myCounter = new flipCounter('myCounter', {value: start, inc: interval, auto: false});
 
-  $scope.nameCounter = "Contador Onda Dura";
+  $scope.nameCounter =  "Contador Onda Dura";
+  var id = BackendService.getIdCounter();
+  if (id) {
+    var counter = BackendService.getCounterId(id);
+    $scope.nameCounter = counter.date + ' - ' + counter.type;
+  }
 
   $scope.$on('newCounter', function(event, amount) {
     myCounter = new flipCounter('myCounter', {value: amount, inc: interval, auto: false});

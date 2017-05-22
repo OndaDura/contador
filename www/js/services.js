@@ -200,6 +200,16 @@ angular.module('contador.services', [])
       }
       return counter;
     },
+    getCounterToken: function(token) {
+      var counter = "";
+      var counters = JSON.parse(localStorage.getItem('counters')) || [];
+      for (var i = 0; i < counters.length; i++) {
+        if(counters[i].token == token) {
+          counter = counters[i];
+        }
+      }
+      return counter;
+    },
     getFirstCounter: function() {
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
       if (counters.length) {
