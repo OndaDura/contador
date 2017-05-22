@@ -155,7 +155,7 @@ angular.module('contador.controllers', [])
     $scope.data = {};
     // An elaborate, custom popup
     var newCounterPop = $ionicPopup.show({
-      template: '<label class="item item-input"> <input type="date" ng-model="data.date" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'Total\'"><option value="Total" selected>Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option></select></label></div>',
+      template: '<label class="item item-input"> <input type="date" ng-model="data.date" /></label><label class="item item-input"> <input type="time" ng-model="data.time" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'Total\'"><option value="Total" selected>Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option></select></label></div>',
       title: 'Novo Contador',
       scope: $scope,
       buttons: [
@@ -164,7 +164,7 @@ angular.module('contador.controllers', [])
           text: '<b>Criar</b>',
           type: 'button-positive',
           onTap: function(e) {
-            var nc = BackendService.newCounter($scope.data.date, $scope.data.type);
+            var nc = BackendService.newCounter($scope.data.date, $scope.data.time.getHours(), $scope.data.time.getMinutes(), $scope.data.type);
             nc.success(function(data, status, headers, config) {
               $scope.saveOldCounter();
               BackendService.newCounterFinish($scope.data.date, $scope.data.type, data.token, data.id);
@@ -172,6 +172,7 @@ angular.module('contador.controllers', [])
               BackendService.setValueCounter(0);
               $scope.getCounters();
               $scope.$broadcast('newCounter', 0);
+              $scope.$broadcast('nameCounter', data.dateEvent + ' - ' + data.type);
             }).error(function(data, status, headers, config) {
               $scope.showAlertInvalidCode();
             });
@@ -202,6 +203,7 @@ angular.module('contador.controllers', [])
               BackendService.setValueCounter(0);
               $scope.getCounters();
               $scope.$broadcast('newCounter', 0);
+              $scope.$broadcast('nameCounter', data.dateEvent + ' - ' + data.type);
             }).error(function(data, status, headers, config) {
               $scope.showAlertInvalidCode();
             });
@@ -249,6 +251,7 @@ angular.module('contador.controllers', [])
           BackendService.setIdCounter(id);
           BackendService.setValueCounter(newCounter.value);
           $scope.$broadcast('newCounter', newCounter.value);
+          $scope.$broadcast('nameCounter', newCounter.date + ' - ' + newCounter.type);
           $ionicSideMenuDelegate.toggleLeft(false);
         } else if (index === 1) {
           $scope.syncCounter(id);
@@ -300,8 +303,14 @@ angular.module('contador.controllers', [])
   var interval = $rootScope.interval;
   var myCounter = new flipCounter('myCounter', {value: start, inc: interval, auto: false});
 
+  $scope.nameCounter = "Contador Onda Dura";
+
   $scope.$on('newCounter', function(event, amount) {
     myCounter = new flipCounter('myCounter', {value: amount, inc: interval, auto: false});
+  });
+
+  $scope.$on('nameCounter', function(event, name) {
+    $scope.nameCounter = name;
   });
 
   $scope.addCount = function() {

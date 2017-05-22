@@ -18,16 +18,16 @@
   <ion-side-menu side="left">
     <ion-header-bar class="bar-contador-reverse bar-contador-borderbottom">
       <button menu-close class="button button-full button-positive sem-margem font-20 width-48" ng-click="newCounter();" ng-if="name">
-        Novo Contador
+        Novo
       </button>
       <button menu-close class="button button-full button-positive sem-margem font-20" ng-class="{'width-48': name}" ng-click="openCounter();">
-        Abrir Contador
+        Abrir<span ng-if="!name">  Contador</span>
       </button>
     </ion-header-bar>
 
     <ion-content>
       <ion-list>
-        <ion-item ng-repeat="count in counters | orderBy:'-id'" ng-click="showActionCounter(count.id);">
+        <ion-item ng-repeat="count in counters | orderBy:'-id'" ng-click="showActionCounter(count.id);" ng-class="{'item-menu-vermelho': count.sync != 1}">
           {{count.token}} Contador:{{count.value}}<span ng-if="name"> - Total:{{count.total}}</span><br />{{count.date}} - {{count.type}}
         </ion-item>
       </ion-list>

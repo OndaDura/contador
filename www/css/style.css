@@ -46,6 +46,10 @@
   text-align: center;
 }
 
+.item-menu-vermelho {
+  background-color: #823636 !important;
+}
+
 .botao-criar-post {
   font-size: 35px;
   color: #ffc900 !important;

@@ -112,11 +112,21 @@ angular.module('contador.services', [])
         }
       });
     },
-    newCounter: function(date, type) {
+    newCounter: function(date, hour, minute, type) {
+      var date = date.toISOString().substring(0, 10).split('-').reverse().join('/');
+      if (hour < 10) {
+        hour = '0' + hour;
+      }
+      if (minute < 10) {
+        minute = '0' + minute;
+      }
+
+      hour = hour + ':' + minute;
+
       return $http({
         url: "http://renan.pro.br/ws/admin.php",
         method: "POST",
-        data: {"action": "newCounter", "date": date.toISOString().substring(0, 10).split('-').reverse().join('/'), "type": type, "id": window.localStorage.getItem("user.id")}
+        data: {"action": "newCounter", "date": date, "hour": hour, "type": type, "id": window.localStorage.getItem("user.id")}
       });
     },
     newCounterFinish: function(date, type, token, id) {
@@ -124,7 +134,7 @@ angular.module('contador.services', [])
       if (typeof date != "string") {
         date = date.toISOString();
       }
-      counters.push({'date': date.substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'token': token, 'id': id});
+      counters.push({'date': date.substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'sync': 1, 'token': token, 'id': id});
       window.localStorage.setItem("counters", JSON.stringify(counters));
     },
     openCounter: function(token) {
@@ -136,7 +146,7 @@ angular.module('contador.services', [])
     },
     openCounterFinish: function(date, type, token, id) {
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
-      counters.push({'date': date.toISOString().substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'token': token, 'id': id});
+      counters.push({'date': date.toISOString().substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'sync': 1, 'token': token, 'id': id});
       window.localStorage.setItem("counters", JSON.stringify(counters));
     },
     getCounters: function() {
@@ -175,6 +185,7 @@ angular.module('contador.services', [])
       for (var i = 0; i < counters.length; i++) {
         if(counters[i].id == id) {
           counters[i].total = total;
+          counters[i].sync = 1;
         }
       }
       window.localStorage.setItem("counters", JSON.stringify(counters));
@@ -202,6 +213,9 @@ angular.module('contador.services', [])
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
       for (var i = 0; i < counters.length; i++) {
         if(counters[i].id == id) {
+          if (counters[i].value != amount) {
+            counters[i].sync = 0;
+          }
           counters[i].value = amount;
         }
       }
