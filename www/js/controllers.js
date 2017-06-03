@@ -155,7 +155,7 @@ angular.module('contador.controllers', [])
     $scope.data = {};
     // An elaborate, custom popup
     var newCounterPop = $ionicPopup.show({
-      template: '<label class="item item-input"> <input type="date" ng-model="data.date" /></label><label class="item item-input"> <input type="time" ng-model="data.time" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'Total\'"><option value="Total" selected>Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option></select></label></div>',
+      template: '<label class="item item-input"> <input type="date" ng-model="data.date" placeholder="Dia" /></label><label class="item item-input"> <input type="time" ng-model="data.time" placeholder="Hora" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'SOMMA\'"><option value="SOMMA" selected>SOMMA</option><option value="METANOIA" >Metanoia</option><option value="Total" >Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option></select></label><label class="item item-input"><input type="text" ng-model="data.title" placeholder="Título/Tema"/></label></div>',
       title: 'Novo Contador',
       scope: $scope,
       buttons: [
@@ -164,15 +164,17 @@ angular.module('contador.controllers', [])
           text: '<b>Criar</b>',
           type: 'button-positive',
           onTap: function(e) {
-            var nc = BackendService.newCounter($scope.data.date, $scope.data.time.getHours(), $scope.data.time.getMinutes(), $scope.data.type);
+            var nc = BackendService.newCounter($scope.data.date, $scope.data.time.getHours(), $scope.data.time.getMinutes(), $scope.data.type, $scope.data.title);
             nc.success(function(data, status, headers, config) {
               $scope.saveOldCounter();
-              BackendService.newCounterFinish($scope.data.date, $scope.data.type, data.token, data.id);
-              BackendService.setIdCounter(data.id);
-              BackendService.setValueCounter(0);
-              $scope.getCounters();
-              $scope.$broadcast('newCounter', 0);
-              $scope.$broadcast('nameCounter', data.dateEvent.substring(0, 10).split('-').reverse().join('/') + ' - ' + data.type);
+			  for (var i = 0; i < data.length; i++) {
+				  BackendService.newCounterFinish($scope.data.date, data[i].type, data[i].token, data[i].id, data[i].title);
+				  BackendService.setIdCounter(data[i].id);
+				  BackendService.setValueCounter(0);
+				  $scope.getCounters();
+				  $scope.$broadcast('newCounter', 0);
+				  $scope.$broadcast('nameCounter', data[i].dateEvent.substring(0, 10).split('-').reverse().join('/') + ' - ' + data[i].type);
+			  }
             }).error(function(data, status, headers, config) {
               $scope.showAlertInvalidCode();
             });
@@ -199,12 +201,12 @@ angular.module('contador.controllers', [])
               var oc = BackendService.openCounter($scope.data.token);
               oc.success(function(data, status, headers, config) {
                 $scope.saveOldCounter();
-                BackendService.newCounterFinish(data.dateEvent, data.type, data.token, data.id);
-                BackendService.setIdCounter(data.id);
+                BackendService.newCounterFinish(data[0].dateEvent, data[0].type, data[0].token, data[0].id, data[0].title);
+                BackendService.setIdCounter(data[0].id);
                 BackendService.setValueCounter(0);
                 $scope.getCounters();
                 $scope.$broadcast('newCounter', 0);
-                $scope.$broadcast('nameCounter', data.dateEvent.substring(0, 10).split('-').reverse().join('/') + ' - ' + data.type);
+                $scope.$broadcast('nameCounter', data[0].dateEvent.substring(0, 10).split('-').reverse().join('/') + ' - ' + data[0].type);
               }).error(function(data, status, headers, config) {
                 $scope.showAlertInvalidCode();
               });

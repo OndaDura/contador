@@ -112,7 +112,7 @@ angular.module('contador.services', [])
         }
       });
     },
-    newCounter: function(date, hour, minute, type) {
+    newCounter: function(date, hour, minute, type, title) {
       var date = date.toISOString().substring(0, 10).split('-').reverse().join('/');
       if (hour < 10) {
         hour = '0' + hour;
@@ -126,15 +126,15 @@ angular.module('contador.services', [])
       return $http({
         url: "http://renan.pro.br/ws/admin.php",
         method: "POST",
-        data: {"action": "newCounter", "date": date, "hour": hour, "type": type, "id": window.localStorage.getItem("user.id")}
+        data: {"action": "newCounter", "date": date, "hour": hour, "type": type, "id": window.localStorage.getItem("user.id"), "title": title}
       });
     },
-    newCounterFinish: function(date, type, token, id) {
+    newCounterFinish: function(date, type, token, id, title) {
       var counters = JSON.parse(localStorage.getItem('counters')) || [];
       if (typeof date != "string") {
         date = date.toISOString();
       }
-      counters.push({'date': date.substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'sync': 1, 'token': token, 'id': id});
+      counters.push({'date': date.substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'sync': 1, 'token': token, 'id': id, 'title': title});
       window.localStorage.setItem("counters", JSON.stringify(counters));
     },
     openCounter: function(token) {
@@ -143,11 +143,6 @@ angular.module('contador.services', [])
         method: "POST",
         data: {"action": "openCounter", "token": token}
       });
-    },
-    openCounterFinish: function(date, type, token, id) {
-      var counters = JSON.parse(localStorage.getItem('counters')) || [];
-      counters.push({'date': date.toISOString().substring(0, 10).split('-').reverse().join('/'), 'type': type, 'value': 0, 'total': 0, 'sync': 1, 'token': token, 'id': id});
-      window.localStorage.setItem("counters", JSON.stringify(counters));
     },
     getCounters: function() {
       return JSON.parse(localStorage.getItem('counters')) || [];
