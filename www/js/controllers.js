@@ -201,12 +201,13 @@ angular.module('contador.controllers', [])
               var oc = BackendService.openCounter($scope.data.token);
               oc.success(function(data, status, headers, config) {
                 $scope.saveOldCounter();
-                BackendService.newCounterFinish(data[0].dateEvent, data[0].type, data[0].token, data[0].id, data[0].title);
-                BackendService.setIdCounter(data[0].id);
+				//data[0].dateEvent = data[0].dateEvent.split('-').reverse().join('/');
+                BackendService.newCounterFinish(data.dateEvent, data.type, data.token, data.id, data.title);
+                BackendService.setIdCounter(data.id);
                 BackendService.setValueCounter(0);
                 $scope.getCounters();
                 $scope.$broadcast('newCounter', 0);
-                $scope.$broadcast('nameCounter', data[0].dateEvent.substring(0, 10).split('-').reverse().join('/') + ' - ' + data[0].type);
+                $scope.$broadcast('nameCounter', data.dateEvent.substring(0, 10).split('-').reverse().join('/') + ' - ' + data.type);
               }).error(function(data, status, headers, config) {
                 $scope.showAlertInvalidCode();
               });
