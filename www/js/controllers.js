@@ -155,7 +155,7 @@ angular.module('contador.controllers', [])
     $scope.data = {};
     // An elaborate, custom popup
     var newCounterPop = $ionicPopup.show({
-      template: '<label class="item item-input"> <input type="date" ng-model="data.date" placeholder="Dia" /></label><label class="item item-input"> <input type="time" ng-model="data.time" placeholder="Hora" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'SOMMA\'"><option value="SOMMA" selected>SOMMA</option><option value="METANOIA" >Metanoia</option><option value="Total" >Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option></select></label><label class="item item-input"><input type="text" ng-model="data.title" placeholder="Título/Tema"/></label></div>',
+      template: '<label class="item item-input"> <input type="date" ng-model="data.date" placeholder="Dia" /></label><label class="item item-input"> <input type="time" ng-model="data.time" placeholder="Hora" step="300" /></label><div class="list"><label class="item item-input item-select"><div class="input-label">Tipo</div><select ng-model="data.type" ng-init="data.type = \'SOMMA\'"><option value="SOMMA" selected>SOMMA</option><option value="METANOIA" >Metanoia</option><option value="Total" >Total</option><option value="Visitantes">Visitantes</option><option value="Kinder">Kinder</option><option value="Batizados">Batizados</option><option value="Cadeiras">Cadeiras</option></select></label><label class="item item-input"><input type="text" ng-model="data.title" placeholder="Título/Tema"/></label></div>',
       title: 'Novo Contador',
       scope: $scope,
       buttons: [
@@ -220,11 +220,36 @@ angular.module('contador.controllers', [])
     });
   };
 
+   $scope.addValueCounter = function (id) {
+    $scope.data = {};
+    // An elaborate, custom popup
+    var newCounterPop = $ionicPopup.show({
+      template: '<label class="item item-input"> <input type="number" ng-model="data.value" placeholder="Total a ser adicionado" /></label>',
+      title: 'Adicionar Valor',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancelar' },
+        {
+          text: '<b>Adicionar</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+			total = BackendService.getCounterId(id).value + $scope.data.value;
+			BackendService.setAmoutCounterId(id, total);
+			$scope.getCounters();
+			if (id == BackendService.getIdCounter()) {
+				$scope.$broadcast('newCounter', total);
+			}
+          }
+        }
+      ]
+    });
+  };
+  
   $scope.showActionCounter = function(id) {
     var hideSheet = $ionicActionSheet.show({
       buttons: [
         { text: '<b>Abrir</b>' },
-        { text: 'Sincronizar' },
+        { text: 'Adicionar valor' },
         { text: 'Finalizar' }
       ],
       destructiveText: 'Excluir',
@@ -253,7 +278,7 @@ angular.module('contador.controllers', [])
       },
       buttonClicked: function(index) {
         if (index === 0) {
-          $scope.saveOldCounter();
+          //$scope.saveOldCounter();
           var newCounter = BackendService.getCounterId(id);
           BackendService.setIdCounter(id);
           BackendService.setValueCounter(newCounter.value);
@@ -261,7 +286,8 @@ angular.module('contador.controllers', [])
           $scope.$broadcast('nameCounter', newCounter.date + ' - ' + newCounter.type);
           $ionicSideMenuDelegate.toggleLeft(false);
         } else if (index === 1) {
-          $scope.syncCounter(id);
+          //$scope.syncCounter(id);
+		  $scope.addValueCounter(id);
         } else if (index === 2) {
           var myPopup = $ionicPopup.show({
             template: 'Caso você opte por Finalizar, não será mais possível adicionar contagens a esse contador, você deseja prosseguir?',
