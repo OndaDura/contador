@@ -299,10 +299,13 @@ angular.module('contador.controllers', [])
                 text: '<b>Sim</b>',
                 type: 'button-positive',
                 onTap: function(e) {
+				  BackendService.syncCounter(id);
                   BackendService.removeCounter(id, 2);
                   var counter = BackendService.getFirstCounter();
                   BackendService.setIdCounter(counter.id || 0);
                   BackendService.setValueCounter(counter.value || 0);
+				  $scope.$broadcast('newCounter', counter.value);
+				  $scope.$broadcast('nameCounter', counter.date + ' - ' + counter.type);
                   $scope.getCounters();
                 }
               }
@@ -358,6 +361,7 @@ angular.module('contador.controllers', [])
     }
     $scope.total = myCounter.getValue();
     BackendService.setValueCounter($scope.total);
+	BackendService.setAmoutCounterId(BackendService.getIdCounter(), $scope.total);
   };
 
   $scope.subtractCount = function() {
