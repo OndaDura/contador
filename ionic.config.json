@@ -1,4 +1,8 @@
 {
   "name": "contador",
-  "app_id": "273b380d"
+  "app_id": "273b380d",
+  "type": "ionic1",
+  "watchPatterns": [
+    "scss/**/*"
+  ]
 }

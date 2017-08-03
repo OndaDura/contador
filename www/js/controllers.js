@@ -244,12 +244,13 @@ angular.module('contador.controllers', [])
       ]
     });
   };
-  
+
   $scope.showActionCounter = function(id) {
     var hideSheet = $ionicActionSheet.show({
       buttons: [
         { text: '<b>Abrir</b>' },
-        { text: 'Adicionar valor' },
+        { text: 'Adicionar Valor' },
+        { text: 'Nova Contagem' },
         { text: 'Finalizar' }
       ],
       destructiveText: 'Excluir',
@@ -287,10 +288,10 @@ angular.module('contador.controllers', [])
           $ionicSideMenuDelegate.toggleLeft(false);
         } else if (index === 1) {
           //$scope.syncCounter(id);
-		  $scope.addValueCounter(id);
+	        $scope.addValueCounter(id);
         } else if (index === 2) {
           var myPopup = $ionicPopup.show({
-            template: 'Caso você opte por Finalizar, não será mais possível adicionar contagens a esse contador, você deseja prosseguir?',
+            template: 'Caso você opte por realizar uma nova contagem, não será mais possível reverter o valor dessa contagem. Você deseja prosseguir?',
             title: 'Atenção!',
             scope: $scope,
             buttons: [
@@ -299,13 +300,34 @@ angular.module('contador.controllers', [])
                 text: '<b>Sim</b>',
                 type: 'button-positive',
                 onTap: function(e) {
-				  BackendService.syncCounter(id);
+				          BackendService.syncCounter(id);
+                  BackendService.setAmoutCounterId(id, 0);
+            			if (id == BackendService.getIdCounter()) {
+            				$scope.$broadcast('newCounter', 0);
+            			}
+                  $scope.getCounters();
+                }
+              }
+            ]
+          });
+        } else if (index === 3) {
+          var myPopup = $ionicPopup.show({
+            template: 'Caso você opte por Finalizar, não será mais possível adicionar contagens a esse contador. Você deseja prosseguir?',
+            title: 'Atenção!',
+            scope: $scope,
+            buttons: [
+              { text: 'Cancelar' },
+              {
+                text: '<b>Sim</b>',
+                type: 'button-positive',
+                onTap: function(e) {
+				          BackendService.syncCounter(id);
                   BackendService.removeCounter(id, 2);
                   var counter = BackendService.getFirstCounter();
                   BackendService.setIdCounter(counter.id || 0);
                   BackendService.setValueCounter(counter.value || 0);
-				  $scope.$broadcast('newCounter', counter.value);
-				  $scope.$broadcast('nameCounter', counter.date + ' - ' + counter.type);
+        				  $scope.$broadcast('newCounter', counter.value);
+        				  $scope.$broadcast('nameCounter', counter.date + ' - ' + counter.type);
                   $scope.getCounters();
                 }
               }
