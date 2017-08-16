@@ -151,6 +151,13 @@ angular.module('contador.controllers', [])
     });
   };
 
+  $scope.showAlertTotal = function(total) {
+    var alertPopup = $ionicPopup.alert({
+      title: 'Total de pessoas',
+      template: 'Total: ' + total
+    });
+  }
+
   $scope.newCounter = function () {
     $scope.data = {};
     // An elaborate, custom popup
@@ -321,7 +328,10 @@ angular.module('contador.controllers', [])
                 text: '<b>Sim</b>',
                 type: 'button-positive',
                 onTap: function(e) {
-				          BackendService.syncCounter(id);
+				          var total = BackendService.syncCounter(id);
+                  total.success(function(data, status, headers, config) {
+                    $scope.showAlertTotal(data.total);
+                  });
                   BackendService.removeCounter(id, 2);
                   var counter = BackendService.getFirstCounter();
                   BackendService.setIdCounter(counter.id || 0);
